@@ -191,7 +191,7 @@ class GNBSIMOperatorCharm(CharmBase):
     def _environment_variables(self) -> dict:
         """Returns the environment variables for the workload service."""
         return {
-            "MEM_LIMIT": "99",
+            "MEM_LIMIT": "1Gi",
             "POD_IP": str(self._pod_ip),
         }
 
