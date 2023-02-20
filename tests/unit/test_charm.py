@@ -89,7 +89,7 @@ class TestCharm(unittest.TestCase):
         patch_exec.assert_called_with(
             command=["ip", "route", "replace", "192.168.252.3/32", "via", "192.168.251.1"],
             timeout=300,
-            environment={"MEM_LIMIT": "99", "POD_IP": pod_ip},
+            environment={"MEM_LIMIT": "1Gi", "POD_IP": pod_ip},
         )
 
     @patch("charm.check_output")
