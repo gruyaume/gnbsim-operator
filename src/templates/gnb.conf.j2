@@ -1,0 +1,188 @@
+configuration:
+  execInParallel: false
+  gnbs:
+    gnb1:
+      defaultAmf:
+        hostName: {{ amf_hostname }}
+        ipAddr: null
+        port: {{ amf_port }}
+      globalRanId:
+        gNbId:
+          bitLength: 24
+          gNBValue: "000102"
+        plmnId:
+          mcc: 208
+          mnc: 93
+      n2IpAddr: null
+      n2Port: 9487
+      n3IpAddr: {{ gnb1_n3_ip_address }}
+      n3Port: 2152
+      name: gnb1
+      supportedTaList:
+      - broadcastPlmnList:
+        - plmnId:
+            mcc: 208
+            mnc: 93
+          taiSliceSupportList:
+          - sd: "010203"
+            sst: 1
+        tac: "000001"
+    gnb2:
+      defaultAmf:
+        hostName: {{ amf_hostname }}
+        ipAddr: null
+        port: {{ amf_port }}
+      globalRanId:
+        gNbId:
+          bitLength: 24
+          gNBValue: "000112"
+        plmnId:
+          mcc: 208
+          mnc: 93
+      n2IpAddr: null
+      n2Port: 9488
+      n3IpAddr: {{ gnb2_n3_ip_address }}
+      n3Port: 2152
+      name: gnb2
+      supportedTaList:
+      - broadcastPlmnList:
+        - plmnId:
+            mcc: 208
+            mnc: 93
+          taiSliceSupportList:
+          - sd: "010203"
+            sst: 1
+        tac: "000001"
+  goProfile:
+    enable: true
+    port: 5000
+  httpServer:
+    enable: false
+    ipAddr: POD_IP
+    port: 6000
+  networkTopo:
+  - upfAddr: {{ upf_access_ip_address }}
+    upfGw: {{ upf_gateway }}
+  profiles:
+  - defaultAs: {{ default_icmp_packet_destionation }}
+    enable: false
+    execInParallel: false
+    gnbName: gnb1
+    key: 5122250214c33e723a5dd523fc145fc0
+    opc: 981d464c7c52eb6e5036234984ad0bcf
+    plmnId:
+      mcc: 208
+      mnc: 93
+    profileName: profile1
+    profileType: register
+    startImsi: 208930100007487
+    stepTrigger: false
+    ueCount: 5
+  - dataPktCount: 5
+    defaultAs: {{ default_icmp_packet_destionation }}
+    enable: true
+    execInParallel: false
+    gnbName: gnb1
+    key: 5122250214c33e723a5dd523fc145fc0
+    opc: 981d464c7c52eb6e5036234984ad0bcf
+    plmnId:
+      mcc: 208
+      mnc: 93
+    profileName: profile2
+    profileType: pdusessest
+    startImsi: 208930100007492
+    stepTrigger: false
+    ueCount: 5
+  - defaultAs: {{ default_icmp_packet_destionation }}
+    enable: false
+    execInParallel: false
+    gnbName: gnb1
+    key: 5122250214c33e723a5dd523fc145fc0
+    opc: 981d464c7c52eb6e5036234984ad0bcf
+    plmnId:
+      mcc: 208
+      mnc: 93
+    profileName: profile3
+    profileType: anrelease
+    startImsi: 208930100007497
+    stepTrigger: false
+    ueCount: 5
+  - defaultAs: {{ default_icmp_packet_destionation }}
+    enable: false
+    execInParallel: false
+    gnbName: gnb1
+    key: 5122250214c33e723a5dd523fc145fc0
+    opc: 981d464c7c52eb6e5036234984ad0bcf
+    plmnId:
+      mcc: 208
+      mnc: 93
+    profileName: profile4
+    profileType: uetriggservicereq
+    startImsi: 208930100007497
+    stepTrigger: false
+    ueCount: 5
+  - defaultAs: {{ default_icmp_packet_destionation }}
+    enable: false
+    execInParallel: false
+    gnbName: gnb1
+    key: 5122250214c33e723a5dd523fc145fc0
+    opc: 981d464c7c52eb6e5036234984ad0bcf
+    plmnId:
+      mcc: 208
+      mnc: 93
+    profileName: profile5
+    profileType: deregister
+    startImsi: 208930100007497
+    stepTrigger: false
+    ueCount: 5
+  - defaultAs: {{ default_icmp_packet_destionation }}
+    enable: false
+    execInParallel: false
+    gnbName: gnb1
+    key: 5122250214c33e723a5dd523fc145fc0
+    opc: 981d464c7c52eb6e5036234984ad0bcf
+    perUserTimeout: 100
+    plmnId:
+      mcc: 208
+      mnc: 93
+    profileName: profile6
+    profileType: nwtriggeruedereg
+    startImsi: 208930100007497
+    stepTrigger: false
+    ueCount: 5
+  - defaultAs: {{ default_icmp_packet_destionation }}
+    enable: false
+    execInParallel: false
+    gnbName: gnb1
+    key: 5122250214c33e723a5dd523fc145fc0
+    opc: 981d464c7c52eb6e5036234984ad0bcf
+    plmnId:
+      mcc: 208
+      mnc: 93
+    profileName: profile7
+    profileType: uereqpdusessrelease
+    startImsi: 208930100007497
+    stepTrigger: false
+    ueCount: 5
+  - dataPktCount: 5
+    defaultAs: {{ default_icmp_packet_destionation }}
+    enable: true
+    execInParallel: false
+    gnbName: gnb2
+    key: 5122250214c33e723a5dd523fc145fc0
+    opc: 981d464c7c52eb6e5036234984ad0bcf
+    plmnId:
+      mcc: 208
+      mnc: 93
+    profileName: profile8
+    profileType: pdusessest
+    startImsi: 208930100007501
+    stepTrigger: false
+    ueCount: 5
+  runConfigProfilesAtStart: true
+  singleInterface: null
+info:
+  description: gNodeB sim initial configuration
+  version: 1.0.0
+logger:
+  logLevel: info
