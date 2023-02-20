@@ -1,0 +1,26 @@
+name: gnbsim-operator
+display-name: 5G gNodeB Simulator operator
+summary: 5G gNodeB Simulator operator
+description: 5G gNodeB Simulator operator
+
+containers:
+  gnbsim:
+    resource: gnbsim-image
+    mounts:
+      - storage: config
+        location: /etc/gnbsim/
+
+resources:
+  gnbsim-image:
+    type: oci-image
+    description: OCI image for 5G gnbsim
+    upstream-source: omecproject/5gc-gnbsim:main-1caccfc
+
+storage:
+  config:
+    type: filesystem
+    minimum-size: 1M
+
+requires:
+  n2:
+    interface: n2
