@@ -41,17 +41,15 @@ class TestCharm(unittest.TestCase):
 
     @patch("kubernetes.Kubernetes.create_network_attachment_definition")
     def test_given_when_on_install_then_network_attachment_definition_is_created(
-            self,
-            patch_create_network_attachment_definition
+        self, patch_create_network_attachment_definition
     ):
         self.harness.charm._on_install(event=Mock())
-        
+
         patch_create_network_attachment_definition.assert_called_once()
 
     @patch("kubernetes.Kubernetes.delete_network_attachment_definition")
     def test_given_when_on_remove_then_network_attachment_definition_is_deleted(
-            self,
-            patch_delete_network_attachment_definition
+        self, patch_delete_network_attachment_definition
     ):
         self.harness.charm._on_remove(event=Mock())
 
