@@ -16,7 +16,7 @@ from lightkube.models.core_v1 import ServicePort
 from ops.charm import ActionEvent, CharmBase, InstallEvent, PebbleReadyEvent, RemoveEvent
 from ops.main import main
 from ops.model import ActiveStatus, BlockedStatus, ModelError, WaitingStatus
-from ops.pebble import ExecError, Layer
+from ops.pebble import ExecError
 
 from kubernetes import Kubernetes
 
@@ -51,6 +51,7 @@ class GNBSIMOperatorCharm(CharmBase):
     def _on_install(self, event: InstallEvent) -> None:
         """Handle the install event."""
         self._kubernetes.create_network_attachment_definition()
+        self._kubernetes.patch_statefulset(statefulset_name=self.app.name)
 
     def _on_amf_available(self, event: AMFAvailableEvent) -> None:
         if not self._container.can_connect():
@@ -164,28 +165,6 @@ class GNBSIMOperatorCharm(CharmBase):
             logger.info("gnbsim service is not running")
             return False
         return True
-
-    @property
-    def _pebble_layer(self) -> Layer:
-        """Returns pebble layer for the charm.
-
-        Returns:
-            Layer: Pebble Layer
-        """
-        return Layer(
-            {
-                "summary": "gnbsim layer",
-                "description": "pebble config layer for gnbsim",
-                "services": {
-                    "gnbsim": {
-                        "override": "replace",
-                        "startup": "enabled",
-                        "command": f"./gnbsim --cfg {BASE_CONFIG_PATH}/{CONFIG_FILE_NAME}",
-                        "environment": self._environment_variables,
-                    },
-                },
-            }
-        )
 
     @property
     def _environment_variables(self) -> dict:
