@@ -47,7 +47,6 @@ class Kubernetes:
                 "cniVersion": "0.3.1",
                 "type": "macvlan",
                 "ipam": {"type": "static"},
-                "capabilities": {"mac": True},
             }
             access_interface_spec = {"config": json.dumps(access_interface_config)}
             network_attachment_definition = NetworkAttachmentDefinition(
@@ -57,7 +56,7 @@ class Kubernetes:
             self.client.create(obj=network_attachment_definition, namespace=self.namespace)
             logger.info(
                 f"NetworkAttachmentDefinition {NETWORK_ATTACHMENT_DEFINITION_NAME} created"
-            )  # noqa: E501
+            )
 
     def network_attachment_definition_created(self, name: str) -> bool:
         """Returns whether a NetworkAttachmentDefinition is created."""
