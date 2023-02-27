@@ -13,7 +13,14 @@ from charms.amf_operator.v0.n2 import AMFAvailableEvent, N2Requires
 from charms.observability_libs.v1.kubernetes_service_patch import KubernetesServicePatch
 from jinja2 import Environment, FileSystemLoader
 from lightkube.models.core_v1 import ServicePort
-from ops.charm import ActionEvent, CharmBase, InstallEvent, PebbleReadyEvent, RemoveEvent
+from ops.charm import (
+    ActionEvent,
+    CharmBase,
+    InstallEvent,
+    PebbleReadyEvent,
+    RelationJoinedEvent,
+    RemoveEvent,
+)
 from ops.main import main
 from ops.model import ActiveStatus, BlockedStatus, ModelError, WaitingStatus
 from ops.pebble import ExecError
@@ -38,6 +45,7 @@ class GNBSIMOperatorCharm(CharmBase):
         self.framework.observe(self.on.install, self._on_install)
         self.framework.observe(self.on.gnbsim_pebble_ready, self._on_gnbsim_pebble_ready)
         self.framework.observe(self._n2_requires.on.amf_available, self._on_amf_available)
+        self.framework.observe(self.on.n2_relation_joined, self._on_gnbsim_pebble_ready)
         self.framework.observe(self.on.start_simulation_action, self._on_start_simulation_action)
         self.framework.observe(self.on.remove, self._on_remove)
         self._service_patcher = KubernetesServicePatch(
@@ -88,7 +96,9 @@ class GNBSIMOperatorCharm(CharmBase):
         logger.info("Config file is written")
         return True
 
-    def _on_gnbsim_pebble_ready(self, event: Union[PebbleReadyEvent, AMFAvailableEvent]) -> None:
+    def _on_gnbsim_pebble_ready(
+        self, event: Union[PebbleReadyEvent, AMFAvailableEvent, RelationJoinedEvent]
+    ) -> None:
         """Handle the pebble ready event."""
         if not self._container.can_connect():
             self.unit.status = WaitingStatus("Waiting for container to be ready")
