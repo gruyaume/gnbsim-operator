@@ -1,9 +1,13 @@
 """N2 Interface."""
 
-from ops.framework import EventBase, EventSource, Object
-from ops.charm import CharmBase, CharmEvents, RelationChangedEvent
+import logging
 from typing import Optional, Tuple
 
+from ops.charm import CharmBase, CharmEvents, RelationChangedEvent
+from ops.framework import EventBase, EventSource, Object
+from ops.model import ModelError
+
+logger = logging.getLogger(__name__)
 
 # The unique Charmhub library identifier, never change it
 LIBID = "8436ec6d894947c1bd384234ccc64e81"
@@ -13,7 +17,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 1
+LIBPATCH = 2
 
 
 class AMFAvailableEvent(EventBase):
@@ -45,19 +49,26 @@ class N2RequirerCharmEvents(CharmEvents):
 
 
 class N2Provides(Object):
+    """N2 provides interface."""
 
     def __init__(self, charm: CharmBase, relationship_name: str):
         self.relationship_name = relationship_name
         super().__init__(charm, relationship_name)
 
     def set_info(self, hostname: str, port: str) -> None:
+        """Set the hostname and port for the AMF service."""
         relations = self.model.relations[self.relationship_name]
         for relation in relations:
-            relation.data[self.model.app]["hostname"] = hostname
-            relation.data[self.model.app]["port"] = port
+            try:
+                relation.data[self.model.app]["hostname"] = hostname
+                relation.data[self.model.app]["port"] = port
+            except ModelError as e:
+                logger.debug("Error setting N2 relation data: %s", e)
+                continue
 
 
 class N2Requires(Object):
+    """N2Requires object used by requirers of the N2 interface (gnb)."""
 
     on = N2RequirerCharmEvents()
 
@@ -88,8 +99,14 @@ class N2Requires(Object):
         for relation in self.model.relations[self.relationship_name]:
             if not relation.data:
                 continue
-            if not relation.data[relation.app]:
+            try:
+                remote_application_relation_data = relation.data[relation.app]
+            except ModelError as e:
+                logger.debug("Error reading relation data: %s", e)
                 continue
-            return relation.data[relation.app].get("hostname", None),\
-                relation.data[relation.app].get("port", None)
+            if not remote_application_relation_data:
+                continue
+            return remote_application_relation_data.get(
+                "hostname", None
+            ), remote_application_relation_data.get("port", None)
         return None
