@@ -94,6 +94,10 @@ class GNBSIMOperatorCharm(CharmBase):
             self.unit.status = WaitingStatus("Waiting for container to be ready")
             event.defer()
             return
+        if not self._kubernetes.statefulset_is_patched(statefulset_name=self.app.name):
+            self.unit.status = WaitingStatus("Waiting for statefulset to be patched")
+            event.defer()
+            return
         if not self._config_file_is_written:
             if self._use_default_config:
                 self.unit.status = WaitingStatus("Waiting for config file to be written")
@@ -111,7 +115,6 @@ class GNBSIMOperatorCharm(CharmBase):
         process = self._container.exec(
             command=["ip", "route", "replace", "192.168.252.3/32", "via", "192.168.251.1"],
             timeout=30,
-            environment=self._environment_variables,
         )
         try:
             process.wait_output()
