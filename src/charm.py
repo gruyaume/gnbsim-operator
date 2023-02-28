@@ -134,7 +134,7 @@ class GNBSIMOperatorCharm(CharmBase):
             return
         self.unit.status = MaintenanceStatus("Starting simulation")
         process = self._container.exec(
-            command=["./gnbsim", "--cfg", f"{BASE_CONFIG_PATH}/{CONFIG_FILE_NAME}"],
+            command=["/gnbsim/bin/gnbsim", "--cfg", f"{BASE_CONFIG_PATH}/{CONFIG_FILE_NAME}"],
             timeout=300,
             environment=self._environment_variables,
         )
