@@ -1,0 +1,5 @@
+options:
+  use-default-config:
+    type: boolean
+    default: false
+    description: Use default configuration.
