@@ -1,11 +1,43 @@
 configuration:
+  customProfiles:
+    customProfiles1:
+      defaultAs: 192.168.250.1
+      enable: false
+      execInParallel: false
+      gnbName: gnb1
+      iterations:
+      - "1": REGISTRATION-PROCEDURE 5
+        "2": PDU-SESSION-ESTABLISHMENT-PROCEDURE 5
+        "3": USER-DATA-PACKET-GENERATION-PROCEDURE 10
+        name: iteration1
+        next: iteration2
+      - "1": AN-RELEASE-PROCEDURE 10
+        "2": UE-TRIGGERED-SERVICE-REQUEST-PROCEDURE 5
+        name: iteration2
+        next: iteration3
+        repeat: 0
+      - "1": UE-INITIATED-DEREGISTRATION-PROCEDURE 10
+        name: iteration3
+        next: quit
+        repeat: 0
+      key: 5122250214c33e723a5dd523fc145fc0
+      opc: 981d464c7c52eb6e5036234984ad0bcf
+      plmnId:
+        mcc: 208
+        mnc: 93
+      profileName: custom1
+      profileType: custom
+      sequenceNumber: 16f3b3f70fc2
+      startImsi: 208930100007487
+      startiteration: iteration1
+      stepTrigger: false
+      ueCount: 30
   execInParallel: false
   gnbs:
     gnb1:
       defaultAmf:
-        hostName: {{ amf_hostname }}
-        ipAddr: null
-        port: {{ amf_port }}
+        hostName: amf
+        port: 38412
       globalRanId:
         gNbId:
           bitLength: 24
@@ -13,9 +45,8 @@ configuration:
         plmnId:
           mcc: 208
           mnc: 93
-      n2IpAddr: null
       n2Port: 9487
-      n3IpAddr: {{ gnb1_n3_ip_address }}
+      n3IpAddr: 192.168.251.5
       n3Port: 2152
       name: gnb1
       supportedTaList:
@@ -29,9 +60,8 @@ configuration:
         tac: "000001"
     gnb2:
       defaultAmf:
-        hostName: {{ amf_hostname }}
-        ipAddr: null
-        port: {{ amf_port }}
+        hostName: amf
+        port: 38412
       globalRanId:
         gNbId:
           bitLength: 24
@@ -39,9 +69,8 @@ configuration:
         plmnId:
           mcc: 208
           mnc: 93
-      n2IpAddr: null
       n2Port: 9488
-      n3IpAddr: {{ gnb2_n3_ip_address }}
+      n3IpAddr: 192.168.251.6
       n3Port: 2152
       name: gnb2
       supportedTaList:
@@ -54,88 +83,93 @@ configuration:
             sst: 1
         tac: "000001"
   goProfile:
-    enable: true
+    enable: false
     port: 5000
   httpServer:
     enable: false
     ipAddr: POD_IP
     port: 6000
   networkTopo:
-  - upfAddr: {{ upf_access_ip_address }}
-    upfGw: {{ upf_gateway }}
+  - upfAddr: 192.168.252.3/32
+    upfGw: 192.168.251.1
   profiles:
-  - defaultAs: {{ default_icmp_packet_destionation }}
+  - defaultAs: 192.168.250.1
     enable: false
     execInParallel: false
     gnbName: gnb1
     key: 5122250214c33e723a5dd523fc145fc0
     opc: 981d464c7c52eb6e5036234984ad0bcf
+    perUserTimeout: 100
     plmnId:
       mcc: 208
       mnc: 93
     profileName: profile1
     profileType: register
+    sequenceNumber: 16f3b3f70fc2
     startImsi: 208930100007487
-    stepTrigger: false
     ueCount: 5
   - dataPktCount: 5
-    defaultAs: {{ default_icmp_packet_destionation }}
+    defaultAs: 192.168.250.1
     enable: true
     execInParallel: false
     gnbName: gnb1
     key: 5122250214c33e723a5dd523fc145fc0
     opc: 981d464c7c52eb6e5036234984ad0bcf
+    perUserTimeout: 100
     plmnId:
       mcc: 208
       mnc: 93
     profileName: profile2
     profileType: pdusessest
-    startImsi: 208930100007492
-    stepTrigger: false
+    sequenceNumber: 16f3b3f70fc2
+    startImsi: 208930100007487
     ueCount: 5
-  - defaultAs: {{ default_icmp_packet_destionation }}
+  - defaultAs: 192.168.250.1
     enable: false
     execInParallel: false
     gnbName: gnb1
     key: 5122250214c33e723a5dd523fc145fc0
     opc: 981d464c7c52eb6e5036234984ad0bcf
+    perUserTimeout: 100
     plmnId:
       mcc: 208
       mnc: 93
     profileName: profile3
     profileType: anrelease
+    sequenceNumber: 16f3b3f70fc2
     startImsi: 208930100007497
-    stepTrigger: false
     ueCount: 5
-  - defaultAs: {{ default_icmp_packet_destionation }}
+  - defaultAs: 192.168.250.1
     enable: false
     execInParallel: false
     gnbName: gnb1
     key: 5122250214c33e723a5dd523fc145fc0
     opc: 981d464c7c52eb6e5036234984ad0bcf
+    perUserTimeout: 100
     plmnId:
       mcc: 208
       mnc: 93
     profileName: profile4
     profileType: uetriggservicereq
+    sequenceNumber: 16f3b3f70fc2
     startImsi: 208930100007497
-    stepTrigger: false
     ueCount: 5
-  - defaultAs: {{ default_icmp_packet_destionation }}
+  - defaultAs: 192.168.250.1
     enable: false
     execInParallel: false
     gnbName: gnb1
     key: 5122250214c33e723a5dd523fc145fc0
     opc: 981d464c7c52eb6e5036234984ad0bcf
+    perUserTimeout: 100
     plmnId:
       mcc: 208
       mnc: 93
     profileName: profile5
     profileType: deregister
+    sequenceNumber: 16f3b3f70fc2
     startImsi: 208930100007497
-    stepTrigger: false
     ueCount: 5
-  - defaultAs: {{ default_icmp_packet_destionation }}
+  - defaultAs: 192.168.250.1
     enable: false
     execInParallel: false
     gnbName: gnb1
@@ -147,42 +181,27 @@ configuration:
       mnc: 93
     profileName: profile6
     profileType: nwtriggeruedereg
+    sequenceNumber: 16f3b3f70fc2
     startImsi: 208930100007497
-    stepTrigger: false
     ueCount: 5
-  - defaultAs: {{ default_icmp_packet_destionation }}
+  - defaultAs: 192.168.250.1
     enable: false
     execInParallel: false
     gnbName: gnb1
     key: 5122250214c33e723a5dd523fc145fc0
     opc: 981d464c7c52eb6e5036234984ad0bcf
+    perUserTimeout: 100
     plmnId:
       mcc: 208
       mnc: 93
     profileName: profile7
     profileType: uereqpdusessrelease
+    sequenceNumber: 16f3b3f70fc2
     startImsi: 208930100007497
-    stepTrigger: false
-    ueCount: 5
-  - dataPktCount: 5
-    defaultAs: {{ default_icmp_packet_destionation }}
-    enable: true
-    execInParallel: false
-    gnbName: gnb2
-    key: 5122250214c33e723a5dd523fc145fc0
-    opc: 981d464c7c52eb6e5036234984ad0bcf
-    plmnId:
-      mcc: 208
-      mnc: 93
-    profileName: profile8
-    profileType: pdusessest
-    startImsi: 208930100007501
-    stepTrigger: false
     ueCount: 5
   runConfigProfilesAtStart: true
-  singleInterface: null
 info:
   description: gNodeB sim initial configuration
   version: 1.0.0
 logger:
-  logLevel: info
+  logLevel: trace

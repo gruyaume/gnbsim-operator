@@ -20,7 +20,3 @@ storage:
   config:
     type: filesystem
     minimum-size: 1M
-
-requires:
-  n2:
-    interface: n2

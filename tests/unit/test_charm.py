@@ -2,7 +2,6 @@
 # See LICENSE file for licensing details.
 
 import unittest
-from typing import Tuple
 from unittest.mock import Mock, patch
 
 from ops import testing
@@ -24,21 +23,6 @@ class TestCharm(unittest.TestCase):
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
 
-    def _amf_is_available(self) -> Tuple[str, str]:
-        amf_hostname = "amf.com"
-        amf_port = "1234"
-        n2_relation_id = self.harness.add_relation("n2", "amf")
-        self.harness.add_relation_unit(relation_id=n2_relation_id, remote_unit_name="amf/0")
-        self.harness.update_relation_data(
-            relation_id=n2_relation_id,
-            app_or_unit="amf",
-            key_values={
-                "hostname": amf_hostname,
-                "port": amf_port,
-            },
-        )
-        return amf_hostname, amf_port
-
     @patch("kubernetes.Kubernetes.create_network_attachment_definition")
     def test_given_when_on_install_then_network_attachment_definition_is_created(
         self, patch_create_network_attachment_definition
@@ -56,17 +40,17 @@ class TestCharm(unittest.TestCase):
         patch_delete_network_attachment_definition.assert_called_once()
 
     @patch("ops.model.Container.push")
-    def test_given_can_connect_to_workload_when_database_is_created_then_config_file_is_written(
+    def test_given_use_default_config_when_config_changed_then_config_file_is_written(
         self,
         patch_push,
     ):
         self.harness.set_can_connect(container="gnbsim", val=True)
 
-        amf_hostname, amf_port = self._amf_is_available()
+        self.harness.update_config({"use-default-config": True})
 
         patch_push.assert_called_with(
             path="/etc/gnbsim/gnb.conf",
-            source=f'configuration:\n  execInParallel: false\n  gnbs:\n    gnb1:\n      defaultAmf:\n        hostName: { amf_hostname }\n        ipAddr: null\n        port: { amf_port }\n      globalRanId:\n        gNbId:\n          bitLength: 24\n          gNBValue: "000102"\n        plmnId:\n          mcc: 208\n          mnc: 93\n      n2IpAddr: null\n      n2Port: 9487\n      n3IpAddr: 192.168.251.5\n      n3Port: 2152\n      name: gnb1\n      supportedTaList:\n      - broadcastPlmnList:\n        - plmnId:\n            mcc: 208\n            mnc: 93\n          taiSliceSupportList:\n          - sd: "010203"\n            sst: 1\n        tac: "000001"\n    gnb2:\n      defaultAmf:\n        hostName: amf.com\n        ipAddr: null\n        port: 1234\n      globalRanId:\n        gNbId:\n          bitLength: 24\n          gNBValue: "000112"\n        plmnId:\n          mcc: 208\n          mnc: 93\n      n2IpAddr: null\n      n2Port: 9488\n      n3IpAddr: 192.168.251.6\n      n3Port: 2152\n      name: gnb2\n      supportedTaList:\n      - broadcastPlmnList:\n        - plmnId:\n            mcc: 208\n            mnc: 93\n          taiSliceSupportList:\n          - sd: "010203"\n            sst: 1\n        tac: "000001"\n  goProfile:\n    enable: true\n    port: 5000\n  httpServer:\n    enable: false\n    ipAddr: POD_IP\n    port: 6000\n  networkTopo:\n  - upfAddr: 192.168.252.3/32\n    upfGw: 192.168.251.1\n  profiles:\n  - defaultAs: 192.168.250.1\n    enable: false\n    execInParallel: false\n    gnbName: gnb1\n    key: 5122250214c33e723a5dd523fc145fc0\n    opc: 981d464c7c52eb6e5036234984ad0bcf\n    plmnId:\n      mcc: 208\n      mnc: 93\n    profileName: profile1\n    profileType: register\n    startImsi: 208930100007487\n    stepTrigger: false\n    ueCount: 5\n  - dataPktCount: 5\n    defaultAs: 192.168.250.1\n    enable: true\n    execInParallel: false\n    gnbName: gnb1\n    key: 5122250214c33e723a5dd523fc145fc0\n    opc: 981d464c7c52eb6e5036234984ad0bcf\n    plmnId:\n      mcc: 208\n      mnc: 93\n    profileName: profile2\n    profileType: pdusessest\n    startImsi: 208930100007492\n    stepTrigger: false\n    ueCount: 5\n  - defaultAs: 192.168.250.1\n    enable: false\n    execInParallel: false\n    gnbName: gnb1\n    key: 5122250214c33e723a5dd523fc145fc0\n    opc: 981d464c7c52eb6e5036234984ad0bcf\n    plmnId:\n      mcc: 208\n      mnc: 93\n    profileName: profile3\n    profileType: anrelease\n    startImsi: 208930100007497\n    stepTrigger: false\n    ueCount: 5\n  - defaultAs: 192.168.250.1\n    enable: false\n    execInParallel: false\n    gnbName: gnb1\n    key: 5122250214c33e723a5dd523fc145fc0\n    opc: 981d464c7c52eb6e5036234984ad0bcf\n    plmnId:\n      mcc: 208\n      mnc: 93\n    profileName: profile4\n    profileType: uetriggservicereq\n    startImsi: 208930100007497\n    stepTrigger: false\n    ueCount: 5\n  - defaultAs: 192.168.250.1\n    enable: false\n    execInParallel: false\n    gnbName: gnb1\n    key: 5122250214c33e723a5dd523fc145fc0\n    opc: 981d464c7c52eb6e5036234984ad0bcf\n    plmnId:\n      mcc: 208\n      mnc: 93\n    profileName: profile5\n    profileType: deregister\n    startImsi: 208930100007497\n    stepTrigger: false\n    ueCount: 5\n  - defaultAs: 192.168.250.1\n    enable: false\n    execInParallel: false\n    gnbName: gnb1\n    key: 5122250214c33e723a5dd523fc145fc0\n    opc: 981d464c7c52eb6e5036234984ad0bcf\n    perUserTimeout: 100\n    plmnId:\n      mcc: 208\n      mnc: 93\n    profileName: profile6\n    profileType: nwtriggeruedereg\n    startImsi: 208930100007497\n    stepTrigger: false\n    ueCount: 5\n  - defaultAs: 192.168.250.1\n    enable: false\n    execInParallel: false\n    gnbName: gnb1\n    key: 5122250214c33e723a5dd523fc145fc0\n    opc: 981d464c7c52eb6e5036234984ad0bcf\n    plmnId:\n      mcc: 208\n      mnc: 93\n    profileName: profile7\n    profileType: uereqpdusessrelease\n    startImsi: 208930100007497\n    stepTrigger: false\n    ueCount: 5\n  - dataPktCount: 5\n    defaultAs: 192.168.250.1\n    enable: true\n    execInParallel: false\n    gnbName: gnb2\n    key: 5122250214c33e723a5dd523fc145fc0\n    opc: 981d464c7c52eb6e5036234984ad0bcf\n    plmnId:\n      mcc: 208\n      mnc: 93\n    profileName: profile8\n    profileType: pdusessest\n    startImsi: 208930100007501\n    stepTrigger: false\n    ueCount: 5\n  runConfigProfilesAtStart: true\n  singleInterface: null\ninfo:\n  description: gNodeB sim initial configuration\n  version: 1.0.0\nlogger:\n  logLevel: info',  # noqa: E501
+            source='configuration:\n  customProfiles:\n    customProfiles1:\n      defaultAs: 192.168.250.1\n      enable: false\n      execInParallel: false\n      gnbName: gnb1\n      iterations:\n      - "1": REGISTRATION-PROCEDURE 5\n        "2": PDU-SESSION-ESTABLISHMENT-PROCEDURE 5\n        "3": USER-DATA-PACKET-GENERATION-PROCEDURE 10\n        name: iteration1\n        next: iteration2\n      - "1": AN-RELEASE-PROCEDURE 10\n        "2": UE-TRIGGERED-SERVICE-REQUEST-PROCEDURE 5\n        name: iteration2\n        next: iteration3\n        repeat: 0\n      - "1": UE-INITIATED-DEREGISTRATION-PROCEDURE 10\n        name: iteration3\n        next: quit\n        repeat: 0\n      key: 5122250214c33e723a5dd523fc145fc0\n      opc: 981d464c7c52eb6e5036234984ad0bcf\n      plmnId:\n        mcc: 208\n        mnc: 93\n      profileName: custom1\n      profileType: custom\n      sequenceNumber: 16f3b3f70fc2\n      startImsi: 208930100007487\n      startiteration: iteration1\n      stepTrigger: false\n      ueCount: 30\n  execInParallel: false\n  gnbs:\n    gnb1:\n      defaultAmf:\n        hostName: amf\n        port: 38412\n      globalRanId:\n        gNbId:\n          bitLength: 24\n          gNBValue: "000102"\n        plmnId:\n          mcc: 208\n          mnc: 93\n      n2Port: 9487\n      n3IpAddr: 192.168.251.5\n      n3Port: 2152\n      name: gnb1\n      supportedTaList:\n      - broadcastPlmnList:\n        - plmnId:\n            mcc: 208\n            mnc: 93\n          taiSliceSupportList:\n          - sd: "010203"\n            sst: 1\n        tac: "000001"\n    gnb2:\n      defaultAmf:\n        hostName: amf\n        port: 38412\n      globalRanId:\n        gNbId:\n          bitLength: 24\n          gNBValue: "000112"\n        plmnId:\n          mcc: 208\n          mnc: 93\n      n2Port: 9488\n      n3IpAddr: 192.168.251.6\n      n3Port: 2152\n      name: gnb2\n      supportedTaList:\n      - broadcastPlmnList:\n        - plmnId:\n            mcc: 208\n            mnc: 93\n          taiSliceSupportList:\n          - sd: "010203"\n            sst: 1\n        tac: "000001"\n  goProfile:\n    enable: false\n    port: 5000\n  httpServer:\n    enable: false\n    ipAddr: POD_IP\n    port: 6000\n  networkTopo:\n  - upfAddr: 192.168.252.3/32\n    upfGw: 192.168.251.1\n  profiles:\n  - defaultAs: 192.168.250.1\n    enable: false\n    execInParallel: false\n    gnbName: gnb1\n    key: 5122250214c33e723a5dd523fc145fc0\n    opc: 981d464c7c52eb6e5036234984ad0bcf\n    perUserTimeout: 100\n    plmnId:\n      mcc: 208\n      mnc: 93\n    profileName: profile1\n    profileType: register\n    sequenceNumber: 16f3b3f70fc2\n    startImsi: 208930100007487\n    ueCount: 5\n  - dataPktCount: 5\n    defaultAs: 192.168.250.1\n    enable: true\n    execInParallel: false\n    gnbName: gnb1\n    key: 5122250214c33e723a5dd523fc145fc0\n    opc: 981d464c7c52eb6e5036234984ad0bcf\n    perUserTimeout: 100\n    plmnId:\n      mcc: 208\n      mnc: 93\n    profileName: profile2\n    profileType: pdusessest\n    sequenceNumber: 16f3b3f70fc2\n    startImsi: 208930100007487\n    ueCount: 5\n  - defaultAs: 192.168.250.1\n    enable: false\n    execInParallel: false\n    gnbName: gnb1\n    key: 5122250214c33e723a5dd523fc145fc0\n    opc: 981d464c7c52eb6e5036234984ad0bcf\n    perUserTimeout: 100\n    plmnId:\n      mcc: 208\n      mnc: 93\n    profileName: profile3\n    profileType: anrelease\n    sequenceNumber: 16f3b3f70fc2\n    startImsi: 208930100007497\n    ueCount: 5\n  - defaultAs: 192.168.250.1\n    enable: false\n    execInParallel: false\n    gnbName: gnb1\n    key: 5122250214c33e723a5dd523fc145fc0\n    opc: 981d464c7c52eb6e5036234984ad0bcf\n    perUserTimeout: 100\n    plmnId:\n      mcc: 208\n      mnc: 93\n    profileName: profile4\n    profileType: uetriggservicereq\n    sequenceNumber: 16f3b3f70fc2\n    startImsi: 208930100007497\n    ueCount: 5\n  - defaultAs: 192.168.250.1\n    enable: false\n    execInParallel: false\n    gnbName: gnb1\n    key: 5122250214c33e723a5dd523fc145fc0\n    opc: 981d464c7c52eb6e5036234984ad0bcf\n    perUserTimeout: 100\n    plmnId:\n      mcc: 208\n      mnc: 93\n    profileName: profile5\n    profileType: deregister\n    sequenceNumber: 16f3b3f70fc2\n    startImsi: 208930100007497\n    ueCount: 5\n  - defaultAs: 192.168.250.1\n    enable: false\n    execInParallel: false\n    gnbName: gnb1\n    key: 5122250214c33e723a5dd523fc145fc0\n    opc: 981d464c7c52eb6e5036234984ad0bcf\n    perUserTimeout: 100\n    plmnId:\n      mcc: 208\n      mnc: 93\n    profileName: profile6\n    profileType: nwtriggeruedereg\n    sequenceNumber: 16f3b3f70fc2\n    startImsi: 208930100007497\n    ueCount: 5\n  - defaultAs: 192.168.250.1\n    enable: false\n    execInParallel: false\n    gnbName: gnb1\n    key: 5122250214c33e723a5dd523fc145fc0\n    opc: 981d464c7c52eb6e5036234984ad0bcf\n    perUserTimeout: 100\n    plmnId:\n      mcc: 208\n      mnc: 93\n    profileName: profile7\n    profileType: uereqpdusessrelease\n    sequenceNumber: 16f3b3f70fc2\n    startImsi: 208930100007497\n    ueCount: 5\n  runConfigProfilesAtStart: true\ninfo:\n  description: gNodeB sim initial configuration\n  version: 1.0.0\nlogger:\n  logLevel: trace\n',  # noqa: E501
         )
 
     @patch("charm.check_output")
@@ -82,13 +66,11 @@ class TestCharm(unittest.TestCase):
         patch_exists.return_value = True
         patch_check_output.return_value = pod_ip.encode()
 
-        self._amf_is_available()
-
         self.harness.container_pebble_ready(container_name="gnbsim")
 
         patch_exec.assert_called_with(
             command=["ip", "route", "replace", "192.168.252.3/32", "via", "192.168.251.1"],
-            timeout=300,
+            timeout=30,
             environment={"MEM_LIMIT": "1Gi", "POD_IP": pod_ip},
         )
 
@@ -100,8 +82,6 @@ class TestCharm(unittest.TestCase):
     ):
         patch_exists.return_value = True
         patch_check_output.return_value = b"1.2.3.4"
-
-        self._amf_is_available()
 
         self.harness.container_pebble_ready("gnbsim")
 
