@@ -150,9 +150,10 @@ class GNBSIMOperatorCharm(CharmBase):
             for line in e.stderr.splitlines():
                 logger.error("    %s", line)
             raise e
-        logger.info("Stdout: %s", stdout)
-        logger.info("Stderr: %s", stderr)
-        event.set_results({"success": "true"})
+        if "Profile Status: PASS" in stderr:
+            event.set_results({"success": "true"})
+        else:
+            event.set_results({"success": "false"})
         self.unit.status = ActiveStatus("Successfully ran simulation")
 
     @property
