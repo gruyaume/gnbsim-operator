@@ -108,7 +108,12 @@ class GNBSIMOperatorCharm(CharmBase):
                     "Use `juju scp` to copy the config file to the unit and run the `configure-network` action"  # noqa: E501, W505
                 )
                 return
-        self._execute_replace_ip_route()
+        try:
+            self._execute_replace_ip_route()
+        except ExecError:
+            self.unit.status = WaitingStatus("Waiting to be able to execute commands in container")
+            event.defer()
+            return
         self.unit.status = ActiveStatus()
 
     def _execute_replace_ip_route(self) -> None:
