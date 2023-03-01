@@ -144,12 +144,14 @@ class GNBSIMOperatorCharm(CharmBase):
             environment=self._environment_variables,
         )
         try:
-            process.wait_output()
+            stdout, stderr = process.wait_output()
         except ExecError as e:
             logger.error("Exited with code %d. Stderr:", e.exit_code)
             for line in e.stderr.splitlines():
                 logger.error("    %s", line)
             raise e
+        logger.info("Stdout: %s", stdout)
+        logger.info("Stderr: %s", stderr)
         event.set_results({"success": "true"})
         self.unit.status = ActiveStatus("Successfully ran simulation")
 
