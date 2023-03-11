@@ -5,9 +5,10 @@
 """Charmed operator for the 5G OMEC GNBSIM service."""
 
 import logging
+import json
 from ipaddress import IPv4Address
 from subprocess import check_output
-from typing import Optional, Union
+from typing import Optional, Union, List
 
 from charms.observability_libs.v1.kubernetes_service_patch import KubernetesServicePatch
 from lightkube.models.core_v1 import ServicePort
@@ -18,6 +19,7 @@ from ops.charm import (
     InstallEvent,
     PebbleReadyEvent,
     RemoveEvent,
+    RelationJoinedEvent,
 )
 from ops.main import main
 from ops.model import ActiveStatus, BlockedStatus, MaintenanceStatus, WaitingStatus
@@ -43,6 +45,7 @@ class GNBSIMOperatorCharm(CharmBase):
         self.framework.observe(self.on.config_changed, self._on_config_changed)
         self.framework.observe(self.on.gnbsim_pebble_ready, self._on_gnbsim_pebble_ready)
         self.framework.observe(self.on.start_simulation_action, self._on_start_simulation_action)
+        self.framework.observe(self.on.router_relation_joined, self._on_router_relation_joined)
         self.framework.observe(self.on.remove, self._on_remove)
         self._service_patcher = KubernetesServicePatch(
             charm=self,
@@ -65,6 +68,16 @@ class GNBSIMOperatorCharm(CharmBase):
         """Handle the install event."""
         self._kubernetes.create_network_attachment_definition()
         self._kubernetes.patch_statefulset(statefulset_name=self.app.name)
+
+    def _on_router_relation_joined(self, event: RelationJoinedEvent) -> None:
+        self._set_router_info(name="ran", gateway="192.168.251.1/24")
+
+    def _set_router_info(self, name: str, gateway: str, routes: Optional[List[str]] = None):
+        router_relation = self.model.get_relation(relation_name="router")
+        router_relation.data[self.unit]["name"] = name
+        router_relation.data[self.unit]["gateway"] = gateway
+        if routes:
+            router_relation.data[self.unit]["routes"] = json.dumps(routes)
 
     def _write_default_config(self) -> None:
         with open("src/files/default_config.yaml", "r") as f:
